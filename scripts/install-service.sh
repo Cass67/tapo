@@ -2,6 +2,7 @@
 set -euo pipefail
 
 SERVICE_NAME="tapo-probe"
+ALLOY_SERVICE_NAME="tapo-probe-alloy"
 MACOS_LABEL="com.tapo-probe.exporter"
 MACOS_ALLOY_LABEL="com.tapo-probe.alloy"
 PORT="${TAPO_PROBE_PORT:-9108}"
@@ -39,6 +40,31 @@ install_package() {
   fi
   "$venv_dir/bin/python" -m pip install --upgrade pip
   "$venv_dir/bin/python" -m pip install -e "$repo_root"
+}
+
+install_alloy_runner() {
+  local alloy_bin
+
+  if ! alloy_bin="$(command -v alloy)"; then
+    printf 'Grafana Alloy is not installed. Install Grafana Alloy, then rerun this installer.\n' >&2
+    printf 'macOS Homebrew: brew install grafana/grafana/alloy\n' >&2
+    printf 'Linux packages: https://grafana.com/docs/alloy/latest/set-up/install/linux/\n' >&2
+    return 1
+  fi
+
+  cp "$repo_root/grafana/alloy.config.example" "$alloy_config_file"
+  cat >"$alloy_runner" <<SH
+#!/usr/bin/env bash
+set -euo pipefail
+if [[ -f "$repo_root/.env" ]]; then
+  set -a
+  source "$repo_root/.env"
+  set +a
+fi
+# Run the equivalent of: alloy run "$alloy_config_file"
+exec "$alloy_bin" run "$alloy_config_file"
+SH
+  chmod 700 "$alloy_runner"
 }
 
 install_macos() {
@@ -90,28 +116,12 @@ XML
 install_macos_alloy() {
   local launch_agents_dir="$1"
   local logs_dir="$2"
-  local alloy_bin
   local plist_file="$launch_agents_dir/$MACOS_ALLOY_LABEL.plist"
 
-  if ! alloy_bin="$(command -v alloy)"; then
-    printf 'Grafana Alloy is not installed. Install it with: brew install grafana/grafana/alloy\n' >&2
+  if ! install_alloy_runner; then
     printf 'Tapo exporter is installed, but Grafana Cloud remote_write will not run until Alloy is installed and this installer is rerun.\n' >&2
     return 0
   fi
-
-  cp "$repo_root/grafana/alloy.config.example" "$alloy_config_file"
-  cat >"$alloy_runner" <<SH
-#!/usr/bin/env bash
-set -euo pipefail
-if [[ -f "$repo_root/.env" ]]; then
-  set -a
-  source "$repo_root/.env"
-  set +a
-fi
-# Run the equivalent of: alloy run "$alloy_config_file"
-exec "$alloy_bin" run "$alloy_config_file"
-SH
-  chmod 700 "$alloy_runner"
 
   cat >"$plist_file" <<XML
 <?xml version="1.0" encoding="UTF-8"?>
@@ -148,6 +158,7 @@ XML
 install_linux() {
   local systemd_user_dir="${XDG_CONFIG_HOME:-$HOME/.config}/systemd/user"
   local service_file="$systemd_user_dir/$SERVICE_NAME.service"
+  local alloy_service_file="$systemd_user_dir/$ALLOY_SERVICE_NAME.service"
 
   mkdir -p "$systemd_user_dir"
   cat >"$service_file" <<SYSTEMD
@@ -166,9 +177,35 @@ RestartSec=10
 WantedBy=default.target
 SYSTEMD
 
+  if install_alloy_runner; then
+    cat >"$alloy_service_file" <<SYSTEMD
+[Unit]
+Description=Tapo P110 Grafana Alloy remote_write
+After=network-online.target $SERVICE_NAME.service
+
+[Service]
+Type=simple
+WorkingDirectory=$repo_root
+ExecStart=$alloy_runner
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=default.target
+SYSTEMD
+  else
+    printf 'Tapo exporter is installed, but Grafana Cloud remote_write will not run until Alloy is installed and this installer is rerun.\n' >&2
+  fi
+
   systemctl --user daemon-reload
   systemctl --user enable --now "$SERVICE_NAME.service"
+  if [[ -f "$alloy_service_file" ]]; then
+    systemctl --user enable --now "tapo-probe-alloy.service"
+  fi
   printf 'Installed Linux user service: %s\n' "$service_file"
+  if [[ -f "$alloy_service_file" ]]; then
+    printf 'Installed Linux Alloy user service: %s\n' "$alloy_service_file"
+  fi
 }
 
 install_service() {
@@ -196,8 +233,11 @@ uninstall_service() {
       rm -f "$alloy_runner" "$alloy_config_file"
       ;;
     Linux)
+      systemctl --user disable --now "$ALLOY_SERVICE_NAME.service" >/dev/null 2>&1 || true
       systemctl --user disable --now "$SERVICE_NAME.service" >/dev/null 2>&1 || true
+      rm -f "${XDG_CONFIG_HOME:-$HOME/.config}/systemd/user/$ALLOY_SERVICE_NAME.service"
       rm -f "${XDG_CONFIG_HOME:-$HOME/.config}/systemd/user/$SERVICE_NAME.service"
+      rm -f "$alloy_runner" "$alloy_config_file"
       systemctl --user daemon-reload
       ;;
     *)
@@ -213,7 +253,10 @@ service_status() {
       launchctl print "gui/$(id -u)/$MACOS_LABEL"
       launchctl print "gui/$(id -u)/$MACOS_ALLOY_LABEL"
       ;;
-    Linux) systemctl --user status "$SERVICE_NAME.service" ;;
+    Linux)
+      systemctl --user status "$SERVICE_NAME.service"
+      systemctl --user status "$ALLOY_SERVICE_NAME.service"
+      ;;
     *)
       printf 'Unsupported OS: %s\n' "$(uname -s)" >&2
       return 1

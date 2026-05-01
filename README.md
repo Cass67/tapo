@@ -103,7 +103,7 @@ Run the installer from the repo root:
 scripts/install-service.sh
 ```
 
-The installer is user-level by default. It does not require sudo. On macOS, the installer manages both the exporter and Grafana Alloy so local collection and Grafana Cloud remote_write survive login/reboot.
+The installer is user-level by default. It does not require sudo. On macOS and Linux, the installer manages both the exporter and Grafana Alloy so local collection and Grafana Cloud remote_write survive login/reboot.
 
 What it does:
 
@@ -112,6 +112,7 @@ What it does:
 - On macOS, installs `~/Library/LaunchAgents/com.tapo-probe.exporter.plist`.
 - On macOS, installs `~/Library/LaunchAgents/com.tapo-probe.alloy.plist` when `alloy` is available.
 - On Linux, installs `~/.config/systemd/user/tapo-probe.service`.
+- On Linux, installs `~/.config/systemd/user/tapo-probe-alloy.service` when `alloy` is available.
 - Starts the exporter with `tapo-probe serve --config ~/.config/tapo-probe/tapo-config.json --port 9108 --interval 60`.
 - Starts Alloy with a managed `~/.config/tapo-probe/alloy.config` copied from `grafana/alloy.config.example`.
 
@@ -130,6 +131,8 @@ Install Alloy before running the installer if you want Grafana Cloud remote_writ
 ```bash
 brew install grafana/grafana/alloy
 ```
+
+For Linux package installation options, see the Grafana Alloy Linux install docs: https://grafana.com/docs/alloy/latest/set-up/install/linux/
 
 Installer commands:
 
@@ -160,14 +163,18 @@ Linux service commands:
 
 ```bash
 systemctl --user status tapo-probe.service
+systemctl --user status tapo-probe-alloy.service
 systemctl --user restart tapo-probe.service
+systemctl --user restart tapo-probe-alloy.service
 systemctl --user stop tapo-probe.service
+systemctl --user stop tapo-probe-alloy.service
 ```
 
 Linux logs:
 
 ```bash
 journalctl --user -u tapo-probe.service -f
+journalctl --user -u tapo-probe-alloy.service -f
 ```
 
 Set a different listen port or poll interval during install:

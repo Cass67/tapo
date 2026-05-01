@@ -87,3 +87,13 @@ def test_installer_manages_alloy_remote_write_service():
     assert "alloy run" in installer  # nosec B101
     assert "brew install grafana/grafana/alloy" in installer  # nosec B101
     assert "installer manages both the exporter and Grafana Alloy" in readme  # nosec B101
+
+
+def test_linux_installer_manages_alloy_user_service():
+    readme = Path("README.md").read_text(encoding="utf-8")
+    installer = Path("scripts/install-service.sh").read_text(encoding="utf-8")
+
+    assert "tapo-probe-alloy.service" in installer  # nosec B101
+    assert 'systemctl --user enable --now "tapo-probe-alloy.service"' in installer  # nosec B101
+    assert "systemctl --user status tapo-probe-alloy.service" in readme  # nosec B101
+    assert "journalctl --user -u tapo-probe-alloy.service -f" in readme  # nosec B101
