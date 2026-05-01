@@ -14,6 +14,12 @@ def test_formats_prometheus_metrics_with_hostname():
             "month_energy": 1200,
             "rssi": -55,
             "nickname": "Desk Plug",
+            "on_time": 3600,
+            "signal_level": 2,
+            "overheat_status": "Normal",
+            "overcurrent_status": "OvercurrentStatus.Normal",
+            "power_protection_status": "PowerProtectionStatus.Normal",
+            "fw_ver": "1.4.6 Build 260309",
         },
     )
 
@@ -37,6 +43,30 @@ def test_formats_prometheus_metrics_with_hostname():
     )
     assert (  # nosec B101
         'tapo_plug_up{hostname="desk-host",ip="192.168.1.50",name="desk",nickname="desk-host",alias="desk-host"} 1'
+        in text
+    )
+    assert (  # nosec B101
+        'tapo_plug_on_time_seconds{hostname="desk-host",ip="192.168.1.50",name="desk",nickname="desk-host",alias="desk-host"} 3600'
+        in text
+    )
+    assert (  # nosec B101
+        'tapo_plug_signal_level{hostname="desk-host",ip="192.168.1.50",name="desk",nickname="desk-host",alias="desk-host"} 2'
+        in text
+    )
+    assert (  # nosec B101
+        'tapo_plug_overheat{hostname="desk-host",ip="192.168.1.50",name="desk",nickname="desk-host",alias="desk-host"} 0'
+        in text
+    )
+    assert (  # nosec B101
+        'tapo_plug_overcurrent{hostname="desk-host",ip="192.168.1.50",name="desk",nickname="desk-host",alias="desk-host"} 0'
+        in text
+    )
+    assert (  # nosec B101
+        'tapo_plug_power_protection_triggered{hostname="desk-host",ip="192.168.1.50",name="desk",nickname="desk-host",alias="desk-host"} 0'
+        in text
+    )
+    assert (  # nosec B101
+        'tapo_plug_info{hostname="desk-host",ip="192.168.1.50",name="desk",nickname="desk-host",alias="desk-host",fw_ver="1.4.6 Build 260309"} 1'
         in text
     )
 

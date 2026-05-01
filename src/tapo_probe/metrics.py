@@ -28,6 +28,18 @@ def format_metrics(
         "# TYPE tapo_plug_rssi_dbm gauge",
         "# HELP tapo_plug_up Whether the plug was read successfully.",
         "# TYPE tapo_plug_up gauge",
+        "# HELP tapo_plug_on_time_seconds Seconds since last plug reboot.",
+        "# TYPE tapo_plug_on_time_seconds gauge",
+        "# HELP tapo_plug_signal_level Wi-Fi signal quality (1-3).",
+        "# TYPE tapo_plug_signal_level gauge",
+        "# HELP tapo_plug_overheat Whether the plug is overheating (1=yes).",
+        "# TYPE tapo_plug_overheat gauge",
+        "# HELP tapo_plug_overcurrent Whether overcurrent is detected (1=yes).",
+        "# TYPE tapo_plug_overcurrent gauge",
+        "# HELP tapo_plug_power_protection_triggered Whether power protection is triggered (1=yes).",
+        "# TYPE tapo_plug_power_protection_triggered gauge",
+        "# HELP tapo_plug_info Plug metadata (fw_ver label). Always 1.",
+        "# TYPE tapo_plug_info gauge",
     ]
 
     seen = set()
@@ -49,6 +61,26 @@ def format_metrics(
         )
         _append_metric(lines, "tapo_plug_rssi_dbm", labels, _raw_number(reading, "rssi"))
         lines.append(f"tapo_plug_up{labels} 1")
+        _append_metric(lines, "tapo_plug_on_time_seconds", labels, _raw_number(reading, "on_time"))
+        _append_metric(
+            lines, "tapo_plug_signal_level", labels, _raw_number(reading, "signal_level")
+        )
+        _append_metric(
+            lines, "tapo_plug_overheat", labels, _status_flag(reading, "overheat_status")
+        )
+        _append_metric(
+            lines, "tapo_plug_overcurrent", labels, _status_flag(reading, "overcurrent_status")
+        )
+        _append_metric(
+            lines,
+            "tapo_plug_power_protection_triggered",
+            labels,
+            _status_flag(reading, "power_protection_status"),
+        )
+        fw_ver = reading.raw.get("fw_ver")
+        if fw_ver:
+            fw_labels = labels.rstrip("}") + f',fw_ver="{_escape_label(str(fw_ver))}"' + "}"
+            lines.append(f"tapo_plug_info{fw_labels} 1")
         _append_compatibility_metrics(lines, labels, reading)
 
     for name, ip in errors:
@@ -110,6 +142,14 @@ def _raw_number(reading: Reading, key: str) -> float | None:
         return float(value)
     except (TypeError, ValueError):
         return None
+
+
+def _status_flag(reading: Reading, key: str) -> float:
+    value = reading.raw.get(key)
+    if value is None:
+        return 0
+    text = str(value).lower()
+    return 0 if "normal" in text else 1
 
 
 def _escape_label(value: str) -> str:
