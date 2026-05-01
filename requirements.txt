@@ -1,0 +1,29 @@
+aiohappyeyeballs==2.6.1
+aiohttp==3.13.5
+aiosignal==1.4.0
+attrs==26.1.0
+certifi==2026.4.22
+cffi==2.0.0
+charset-normalizer==3.4.7
+cryptography==47.0.0
+frozenlist==1.8.0
+idna==3.13
+iniconfig==2.3.0
+jsons==1.6.3
+multidict==6.7.1
+packaging==26.2
+pluggy==1.6.0
+plugp100==5.1.7
+propcache==0.4.1
+pycparser==3.0
+Pygments==2.20.0
+pytest==9.0.3
+requests==2.33.1
+scapy==2.7.0
+semantic-version==2.10.0
+tapo==0.9.0
+# Editable Git install with no remote (tapo-probe==0.1.0)
+-e /Users/cass/git/tapo
+typish==1.9.3
+urllib3==2.6.3
+yarl==1.23.0

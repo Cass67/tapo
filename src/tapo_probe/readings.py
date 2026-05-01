@@ -25,10 +25,14 @@ def normalize_reading(name: str, ip: str, raw: dict[str, Any]) -> Reading:
         timestamp=datetime.now(UTC).isoformat(),
         name=name,
         ip=ip,
-        power_w=_metric(raw, "current_power", "current_power_w", "power", "power_mw", scale_for_milli=True),
+        power_w=_metric(
+            raw, "current_power", "current_power_w", "power", "power_mw", scale_for_milli=True
+        ),
         voltage_v=_metric(raw, "voltage", "voltage_mv", scale_for_milli=True),
         current_a=_metric(raw, "current", "current_ma", scale_for_milli=True),
-        total_energy_kwh=_metric(raw, "today_energy", "energy", "total_energy", "total_energy_wh", scale_for_wh=True),
+        total_energy_kwh=_metric(
+            raw, "today_energy", "energy", "total_energy", "total_energy_wh", scale_for_wh=True
+        ),
         raw=raw,
     )
 

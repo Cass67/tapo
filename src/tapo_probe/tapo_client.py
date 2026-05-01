@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import asyncio
-from collections.abc import Awaitable, Callable
 import time
+from collections.abc import Awaitable, Callable
 from typing import Any, Protocol
 
 from tapo_probe.config import DeviceConfig
@@ -10,7 +10,9 @@ from tapo_probe.readings import Reading, normalize_reading
 
 
 class TapoBackend(Protocol):
-    async def get_reading(self, username: str, password: str, device: DeviceConfig) -> dict[str, Any]: ...
+    async def get_reading(
+        self, username: str, password: str, device: DeviceConfig
+    ) -> dict[str, Any]: ...
 
 
 class TapoAuthError(RuntimeError):
@@ -21,7 +23,9 @@ class TapoLibraryBackend:
     def __init__(self, client_factory: Callable[..., Any] | None = None) -> None:
         self._client_factory = client_factory
 
-    async def get_reading(self, username: str, password: str, device: DeviceConfig) -> dict[str, Any]:
+    async def get_reading(
+        self, username: str, password: str, device: DeviceConfig
+    ) -> dict[str, Any]:
         try:
             from tapo import ApiClient
 
@@ -68,8 +72,8 @@ async def collect_readings_async(
                 if attempt < attempts:
                     sleep(attempt)
         else:
-            assert last_error is not None
-            errors.append(f"{device.name} ({device.ip}): {last_error}")
+            msg = str(last_error) if last_error else "unknown error"
+            errors.append(f"{device.name} ({device.ip}): {msg}")
             continue
         readings.append(normalize_reading(device.name, device.ip, raw))
     return readings, errors
@@ -82,9 +86,13 @@ def collect_readings(
     backend: TapoBackend | None = None,
     attempts: int = 3,
     sleep: Callable[[float], None] = time.sleep,
-    runner: Callable[[Awaitable[tuple[list[Reading], list[str]]]], tuple[list[Reading], list[str]]] = asyncio.run,
+    runner: Callable[
+        [Awaitable[tuple[list[Reading], list[str]]]], tuple[list[Reading], list[str]]
+    ] = asyncio.run,
 ) -> tuple[list[Reading], list[str]]:
-    return runner(collect_readings_async(username, password, devices, backend, attempts=attempts, sleep=sleep))
+    return runner(
+        collect_readings_async(username, password, devices, backend, attempts=attempts, sleep=sleep)
+    )
 
 
 async def discover_devices_async(timeout: int = 5) -> list[dict[str, str]]:

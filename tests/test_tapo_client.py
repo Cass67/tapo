@@ -5,15 +5,15 @@ from tapo_probe.tapo_client import TapoLibraryBackend, collect_readings
 
 
 class FakeBackend:
-    async def get_reading(self, username, password, device):
-        assert username == "user@example.com"
-        assert password == "secret"
+    async def get_reading(self, username, password, _device):  # nosec B101 B105
+        assert username == "user@example.com"  # nosec B101
+        assert password == "secret"  # nosec B101 B105
         return {"current_power": 12.5}
 
 
 class FailingBackend:
-    async def get_reading(self, username, password, device):
-        raise RuntimeError("offline")
+    async def get_reading(self, _username, _password, _device):
+        raise RuntimeError("offline")  # noqa: E501
 
 
 def test_collect_readings_with_fake_backend():
@@ -24,9 +24,9 @@ def test_collect_readings_with_fake_backend():
         backend=FakeBackend(),
     )
 
-    assert errors == []
-    assert readings[0].name == "desk"
-    assert readings[0].power_w == 12.5
+    assert errors == []  # nosec B101
+    assert readings[0].name == "desk"  # nosec B101
+    assert readings[0].power_w == 12.5  # nosec B101
 
 
 def test_collect_readings_reports_device_errors():
@@ -37,8 +37,8 @@ def test_collect_readings_reports_device_errors():
         backend=FailingBackend(),
     )
 
-    assert readings == []
-    assert errors == ["desk (192.168.1.50): offline"]
+    assert readings == []  # nosec B101
+    assert errors == ["desk (192.168.1.50): offline"]  # nosec B101
 
 
 def test_collect_readings_retries_transient_device_errors():
@@ -46,7 +46,7 @@ def test_collect_readings_retries_transient_device_errors():
         def __init__(self):
             self.calls = 0
 
-        async def get_reading(self, username, password, device):
+        async def get_reading(self, _username, _password, _device):
             self.calls += 1
             if self.calls == 1:
                 raise ConnectionRefusedError("connection refused")
@@ -58,21 +58,23 @@ def test_collect_readings_retries_transient_device_errors():
         "secret",
         (DeviceConfig(name="desk", ip="192.168.1.50"),),
         backend=backend,
-        sleep=lambda seconds: None,
+        sleep=lambda _seconds: None,
     )
 
-    assert errors == []
-    assert readings[0].power_w == 12.5
-    assert backend.calls == 2
+    assert errors == []  # nosec B101
+    assert readings[0].power_w == 12.5  # nosec B101
+    assert backend.calls == 2  # nosec B101
 
 
 def test_tapo_backend_reports_third_party_compatibility_errors():
     class FakeClient:
-        def __init__(self, username, password, timeout_s=None):
+        def __init__(self, username, password, **_kwargs):
             pass
 
-        async def p110(self, ip):
-            raise Exception('Tapo(Unauthorized { kind: "FORBIDDEN", description: "Make sure Third-Party Compatibility is turned on" })')
+        async def p110(self, _ip):
+            raise Exception(
+                'Tapo(Unauthorized { kind: "FORBIDDEN", description: "Make sure Third-Party Compatibility is turned on" })'
+            )
 
     backend = TapoLibraryBackend(client_factory=FakeClient)
     readings, errors = collect_readings(
@@ -82,7 +84,7 @@ def test_tapo_backend_reports_third_party_compatibility_errors():
         backend=backend,
     )
 
-    assert readings == []
-    assert errors == [
+    assert readings == []  # nosec B101
+    assert errors == [  # nosec B101
         "desk (192.168.1.50): Tapo rejected local access. In the Tapo app, enable Me > Third-Party Services > Third-Party Compatibility, then try again."
     ]

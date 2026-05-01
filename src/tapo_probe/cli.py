@@ -1,14 +1,13 @@
 from __future__ import annotations
 
 import argparse
-from pathlib import Path
 import sys
+from pathlib import Path
 
 from tapo_probe.config import ConfigError, load_config
 from tapo_probe.exporter import serve_metrics
 from tapo_probe.output import append_jsonl
 from tapo_probe.tapo_client import collect_readings, discover_devices
-
 
 DISCOVERY_GUIDANCE = """No Tapo devices are configured.
 
@@ -33,35 +32,62 @@ def main(argv: list[str] | None = None) -> int:
 
     parser = argparse.ArgumentParser(description="Probe Tapo P110 smart plug energy readings")
     parser.add_argument("--config", type=Path, help="Path to JSON config file")
-    parser.add_argument("--output", type=Path, default=Path("tapo-readings.jsonl"), help="JSONL output path")
-    parser.add_argument("--discover", action="store_true", help="Scan the LAN for Tapo devices and print their IPs")
+    parser.add_argument(
+        "--output", type=Path, default=Path("tapo-readings.jsonl"), help="JSONL output path"
+    )
+    parser.add_argument(
+        "--discover", action="store_true", help="Scan the LAN for Tapo devices and print their IPs"
+    )
     args = parser.parse_args(argv)
 
     if args.discover:
-        devices = discover_devices()
-        if not devices:
-            print("No Tapo devices discovered. Check that the plug is powered on and on this LAN.", file=sys.stderr)
-            return 1
-        print("ip\tmodel\ttype\tmac")
-        for device in devices:
-            print(f"{device.get('ip', '-')}\t{device.get('model', '-')}\t{device.get('type', '-')}\t{device.get('mac', '-')}")
-        return 0
+        return _discover()
 
     try:
         config = load_config(args.config)
     except ConfigError as exc:
         print(f"Config error: {exc}", file=sys.stderr)
         return 2
+    missing = _check_missing(config)
+    if missing is not None:
+        return missing
+    return _probe(config, args.output)
+
+
+def _discover() -> int:
+    devices = discover_devices()
+    if not devices:
+        print(
+            "No Tapo devices discovered. Check that the plug is powered on and on this LAN.",
+            file=sys.stderr,
+        )
+        return 1
+    print("ip\tmodel\ttype\tmac")
+    for device in devices:
+        print(
+            f"{device.get('ip', '-')}\t{device.get('model', '-')}\t"
+            f"{device.get('type', '-')}\t{device.get('mac', '-')}"
+        )
+    return 0
+
+
+def _check_missing(config: object) -> int | None:
     if "devices" in config.missing:
         print(DISCOVERY_GUIDANCE, file=sys.stderr)
         return 2
     credential_gaps = [item for item in config.missing if item != "devices"]
     if credential_gaps:
-        print(f"Missing required environment variables: {', '.join(credential_gaps)}", file=sys.stderr)
+        print(
+            f"Missing required environment variables: {', '.join(credential_gaps)}", file=sys.stderr
+        )
         return 2
+    if config.username is None or config.password is None:
+        print("Missing credentials", file=sys.stderr)
+        return 2
+    return None
 
-    assert config.username is not None
-    assert config.password is not None
+
+def _probe(config: object, output_path: Path) -> int:
     readings, errors = collect_readings(config.username, config.password, config.devices)
     for error in errors:
         print(f"ERROR {error}", file=sys.stderr)
@@ -69,15 +95,20 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Summary: {len(readings)} succeeded, {len(errors)} failed", file=sys.stderr)
     if errors and not readings:
         print("Run: tapo-probe --discover", file=sys.stderr)
-        print("Also verify the configured IP is on your LAN subnet and the plug is powered on.", file=sys.stderr)
+        print(
+            "Also verify the configured IP is on your LAN subnet and the plug is powered on.",
+            file=sys.stderr,
+        )
     if readings:
-        append_jsonl(args.output, readings)
+        append_jsonl(output_path, readings)
         _print_table(readings)
     return 1 if errors and not readings else 0
 
 
 def _serve(argv: list[str]) -> int:
-    parser = argparse.ArgumentParser(description="Serve Tapo P110 metrics for Prometheus/Grafana Alloy")
+    parser = argparse.ArgumentParser(
+        description="Serve Tapo P110 metrics for Prometheus/Grafana Alloy"
+    )
     parser.add_argument("--config", type=Path, required=True, help="Path to JSON config file")
     parser.add_argument("--port", type=int, default=9108, help="Metrics listen port")
     parser.add_argument("--interval", type=int, default=60, help="Polling interval in seconds")

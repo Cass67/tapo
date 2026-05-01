@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from collections.abc import Callable
-from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import threading
 import time
+from collections.abc import Callable
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 from tapo_probe.config import ProbeConfig
 from tapo_probe.metrics import format_metrics
@@ -24,9 +24,11 @@ class ExporterState:
         self._lock = threading.Lock()
 
     def poll_once(self) -> None:
-        assert self._config.username is not None
-        assert self._config.password is not None
-        readings, errors = self._collect_readings(self._config.username, self._config.password, self._config.devices)
+        if self._config.username is None or self._config.password is None:
+            return
+        readings, errors = self._collect_readings(
+            self._config.username, self._config.password, self._config.devices
+        )
         parsed_errors = _parse_errors(errors)
         with self._lock:
             self._readings = readings
@@ -36,7 +38,9 @@ class ExporterState:
         with self._lock:
             readings = list(self._readings)
             errors = dict(self._errors)
-        return format_metrics(readings, errors, hostname_overrides=_hostname_overrides(self._config))
+        return format_metrics(
+            readings, errors, hostname_overrides=_hostname_overrides(self._config)
+        )
 
 
 def serve_metrics(config: ProbeConfig, port: int = 9108, interval: int = 60) -> None:
@@ -64,10 +68,10 @@ def serve_metrics(config: ProbeConfig, port: int = 9108, interval: int = 60) -> 
             self.end_headers()
             self.wfile.write(body)
 
-        def log_message(self, format: str, *args: object) -> None:
+        def log_message(self, _format: str, *_args: object) -> None:
             return
 
-    ThreadingHTTPServer(("0.0.0.0", port), Handler).serve_forever()
+    ThreadingHTTPServer(("127.0.0.1", port), Handler).serve_forever()
 
 
 def _hostname_overrides(config: ProbeConfig) -> dict[str, str]:

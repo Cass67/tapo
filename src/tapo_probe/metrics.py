@@ -35,10 +35,18 @@ def format_metrics(
         labels = _labels(reading.name, reading.ip, _hostname(reading, overrides))
         seen.add((reading.name, reading.ip))
         _append_metric(lines, "tapo_plug_power_watts", labels, reading.power_w)
-        _append_metric(lines, "tapo_plug_today_energy_wh", labels, _raw_number(reading, "today_energy"))
-        _append_metric(lines, "tapo_plug_month_energy_wh", labels, _raw_number(reading, "month_energy"))
-        _append_metric(lines, "tapo_plug_today_runtime_seconds", labels, _raw_number(reading, "today_runtime"))
-        _append_metric(lines, "tapo_plug_month_runtime_seconds", labels, _raw_number(reading, "month_runtime"))
+        _append_metric(
+            lines, "tapo_plug_today_energy_wh", labels, _raw_number(reading, "today_energy")
+        )
+        _append_metric(
+            lines, "tapo_plug_month_energy_wh", labels, _raw_number(reading, "month_energy")
+        )
+        _append_metric(
+            lines, "tapo_plug_today_runtime_seconds", labels, _raw_number(reading, "today_runtime")
+        )
+        _append_metric(
+            lines, "tapo_plug_month_runtime_seconds", labels, _raw_number(reading, "month_runtime")
+        )
         _append_metric(lines, "tapo_plug_rssi_dbm", labels, _raw_number(reading, "rssi"))
         lines.append(f"tapo_plug_up{labels} 1")
         _append_compatibility_metrics(lines, labels, reading)
@@ -78,10 +86,18 @@ def _append_metric(lines: list[str], metric: str, labels: str, value: float | in
 def _append_compatibility_metrics(lines: list[str], labels: str, reading: Reading) -> None:
     power_mw = reading.power_w * 1000 if reading.power_w is not None else None
     _append_metric(lines, "tapo_energyUsage_currentPower", labels, power_mw)
-    _append_metric(lines, "tapo_energyUsage_todayEnergy", labels, _raw_number(reading, "today_energy"))
-    _append_metric(lines, "tapo_energyUsage_monthEnergy", labels, _raw_number(reading, "month_energy"))
-    _append_metric(lines, "tapo_energyUsage_todayRuntime", labels, _raw_number(reading, "today_runtime"))
-    _append_metric(lines, "tapo_energyUsage_monthRuntime", labels, _raw_number(reading, "month_runtime"))
+    _append_metric(
+        lines, "tapo_energyUsage_todayEnergy", labels, _raw_number(reading, "today_energy")
+    )
+    _append_metric(
+        lines, "tapo_energyUsage_monthEnergy", labels, _raw_number(reading, "month_energy")
+    )
+    _append_metric(
+        lines, "tapo_energyUsage_todayRuntime", labels, _raw_number(reading, "today_runtime")
+    )
+    _append_metric(
+        lines, "tapo_energyUsage_monthRuntime", labels, _raw_number(reading, "month_runtime")
+    )
     _append_metric(lines, "tapo_deviceInfo_rssi", labels, _raw_number(reading, "rssi"))
     lines.append(f"tapo_deviceInfo_device_on{labels} 1")
 

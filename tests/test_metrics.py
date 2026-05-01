@@ -8,38 +8,66 @@ def test_formats_prometheus_metrics_with_hostname():
     reading = normalize_reading(
         "desk",
         "192.168.1.50",
-        {"current_power": 12.5, "today_energy": 400, "month_energy": 1200, "rssi": -55, "nickname": "Desk Plug"},
+        {
+            "current_power": 12.5,
+            "today_energy": 400,
+            "month_energy": 1200,
+            "rssi": -55,
+            "nickname": "Desk Plug",
+        },
     )
 
     text = format_metrics([reading], {}, hostname_overrides={"192.168.1.50": "desk-host"})
 
-    assert 'tapo_plug_power_watts{hostname="desk-host",ip="192.168.1.50",name="desk",nickname="desk-host",alias="desk-host"} 12.5' in text
-    assert 'tapo_plug_today_energy_wh{hostname="desk-host",ip="192.168.1.50",name="desk",nickname="desk-host",alias="desk-host"} 400' in text
-    assert 'tapo_plug_month_energy_wh{hostname="desk-host",ip="192.168.1.50",name="desk",nickname="desk-host",alias="desk-host"} 1200' in text
-    assert 'tapo_plug_rssi_dbm{hostname="desk-host",ip="192.168.1.50",name="desk",nickname="desk-host",alias="desk-host"} -55' in text
-    assert 'tapo_plug_up{hostname="desk-host",ip="192.168.1.50",name="desk",nickname="desk-host",alias="desk-host"} 1' in text
+    assert (  # nosec B101
+        'tapo_plug_power_watts{hostname="desk-host",ip="192.168.1.50",name="desk",nickname="desk-host",alias="desk-host"} 12.5'
+        in text
+    )
+    assert (  # nosec B101
+        'tapo_plug_today_energy_wh{hostname="desk-host",ip="192.168.1.50",name="desk",nickname="desk-host",alias="desk-host"} 400'
+        in text
+    )
+    assert (  # nosec B101
+        'tapo_plug_month_energy_wh{hostname="desk-host",ip="192.168.1.50",name="desk",nickname="desk-host",alias="desk-host"} 1200'
+        in text
+    )
+    assert (  # nosec B101
+        'tapo_plug_rssi_dbm{hostname="desk-host",ip="192.168.1.50",name="desk",nickname="desk-host",alias="desk-host"} -55'
+        in text
+    )
+    assert (  # nosec B101
+        'tapo_plug_up{hostname="desk-host",ip="192.168.1.50",name="desk",nickname="desk-host",alias="desk-host"} 1'
+        in text
+    )
 
 
 def test_formats_failed_device_up_metric():
-    text = format_metrics([], {("desk", "192.168.1.50"): "offline"}, hostname_overrides={"192.168.1.50": "desk-host"})
+    text = format_metrics(
+        [], {("desk", "192.168.1.50"): "offline"}, hostname_overrides={"192.168.1.50": "desk-host"}
+    )
 
-    assert 'tapo_plug_up{hostname="desk-host",ip="192.168.1.50",name="desk",nickname="desk-host",alias="desk-host"} 0' in text
+    assert (  # nosec B101
+        'tapo_plug_up{hostname="desk-host",ip="192.168.1.50",name="desk",nickname="desk-host",alias="desk-host"} 0'
+        in text
+    )
 
 
 def test_escapes_prometheus_labels():
-    reading = normalize_reading("desk\"plug", "192.168.1.50", {"current_power": 12.5})
+    reading = normalize_reading('desk"plug', "192.168.1.50", {"current_power": 12.5})
 
     text = format_metrics([reading], {})
 
-    assert 'name="desk\\"plug"' in text
+    assert 'name="desk\\"plug"' in text  # nosec B101
 
 
 def test_decodes_base64_tapo_nickname_for_hostname():
-    reading = normalize_reading("desk", "192.168.1.50", {"current_power": 12.5, "nickname": "SG90VHVi"})
+    reading = normalize_reading(
+        "desk", "192.168.1.50", {"current_power": 12.5, "nickname": "SG90VHVi"}
+    )
 
     text = format_metrics([reading], {})
 
-    assert 'hostname="HotTub"' in text
+    assert 'hostname="HotTub"' in text  # nosec B101
 
 
 def test_formats_dashboard_compatibility_metrics():
@@ -58,10 +86,31 @@ def test_formats_dashboard_compatibility_metrics():
 
     text = format_metrics([reading], {})
 
-    assert 'tapo_energyUsage_currentPower{hostname="desk",ip="192.168.1.50",name="desk",nickname="desk",alias="desk"} 12500' in text
-    assert 'tapo_energyUsage_todayEnergy{hostname="desk",ip="192.168.1.50",name="desk",nickname="desk",alias="desk"} 400' in text
-    assert 'tapo_energyUsage_monthEnergy{hostname="desk",ip="192.168.1.50",name="desk",nickname="desk",alias="desk"} 1200' in text
-    assert 'tapo_energyUsage_todayRuntime{hostname="desk",ip="192.168.1.50",name="desk",nickname="desk",alias="desk"} 60' in text
-    assert 'tapo_energyUsage_monthRuntime{hostname="desk",ip="192.168.1.50",name="desk",nickname="desk",alias="desk"} 3600' in text
-    assert 'tapo_deviceInfo_rssi{hostname="desk",ip="192.168.1.50",name="desk",nickname="desk",alias="desk"} -55' in text
-    assert 'tapo_deviceInfo_device_on{hostname="desk",ip="192.168.1.50",name="desk",nickname="desk",alias="desk"} 1' in text
+    assert (  # nosec B101
+        'tapo_energyUsage_currentPower{hostname="desk",ip="192.168.1.50",name="desk",nickname="desk",alias="desk"} 12500'
+        in text
+    )
+    assert (  # nosec B101
+        'tapo_energyUsage_todayEnergy{hostname="desk",ip="192.168.1.50",name="desk",nickname="desk",alias="desk"} 400'
+        in text
+    )
+    assert (  # nosec B101
+        'tapo_energyUsage_monthEnergy{hostname="desk",ip="192.168.1.50",name="desk",nickname="desk",alias="desk"} 1200'
+        in text
+    )
+    assert (  # nosec B101
+        'tapo_energyUsage_todayRuntime{hostname="desk",ip="192.168.1.50",name="desk",nickname="desk",alias="desk"} 60'
+        in text
+    )
+    assert (  # nosec B101
+        'tapo_energyUsage_monthRuntime{hostname="desk",ip="192.168.1.50",name="desk",nickname="desk",alias="desk"} 3600'
+        in text
+    )
+    assert (  # nosec B101
+        'tapo_deviceInfo_rssi{hostname="desk",ip="192.168.1.50",name="desk",nickname="desk",alias="desk"} -55'
+        in text
+    )
+    assert (  # nosec B101
+        'tapo_deviceInfo_device_on{hostname="desk",ip="192.168.1.50",name="desk",nickname="desk",alias="desk"} 1'
+        in text
+    )
