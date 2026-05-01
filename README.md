@@ -225,7 +225,7 @@ export GRAFANA_METRICS_WRITE='your-grafana-cloud-metrics-write-token'
 export GRAFANA_METRICS_READ='your-grafana-cloud-metrics-read-token'
 ```
 
-`GRAFANA_CLOUD_PROM_URL` must be the Prometheus remote_write endpoint from Grafana Cloud, not a dashboard URL. Dashboard URLs like https://getcass.grafana.net/d/ are for viewing dashboards and cannot receive metrics.
+`GRAFANA_CLOUD_PROM_URL` must be the Prometheus remote_write endpoint from Grafana Cloud, not a dashboard URL. Dashboard URLs like https://example.grafana.net/d/ are for viewing dashboards and cannot receive metrics.
 
 `GRAFANA_METRICS_WRITE` must be valid for Grafana Cloud Metrics remote_write. A Grafana service account token that can call the Grafana dashboard API may still fail remote_write with `401 Unauthorized: invalid token` unless it has the Grafana Cloud Metrics publish/write permission. `GRAFANA_METRICS_READ` is used only for verification queries.
 

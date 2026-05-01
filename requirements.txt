@@ -22,8 +22,6 @@ requests==2.33.1
 scapy==2.7.0
 semantic-version==2.10.0
 tapo==0.9.0
-# Editable Git install with no remote (tapo-probe==0.1.0)
--e /Users/cass/git/tapo
 typish==1.9.3
 urllib3==2.6.3
 yarl==1.23.0

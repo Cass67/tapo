@@ -17,7 +17,7 @@ def test_readme_documents_remote_write_not_dashboard_url():
     assert "GRAFANA_METRICS_WRITE" in text  # nosec B101
     assert "GRAFANA_METRICS_READ" in text  # nosec B101
     assert "remote_write endpoint" in text  # nosec B101
-    assert "Dashboard URLs like https://getcass.grafana.net/d/" in text  # nosec B101
+    assert "Dashboard URLs like https://example.grafana.net/d/" in text  # nosec B101
     assert "Grafana Cloud Metrics publish/write permission" in text  # nosec B101
 
 
