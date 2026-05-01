@@ -93,3 +93,29 @@ def test_invalid_json_raises_clear_config_error(tmp_path):
 
     with pytest.raises(ConfigError, match="is not valid JSON"):
         load_config(config_path)
+
+
+def test_invalid_devices_shape_raises_clear_config_error(tmp_path):
+    config_path = tmp_path / "config.json"
+    config_path.write_text(json.dumps({"devices": {"name": "desk"}}), encoding="utf-8")
+
+    with pytest.raises(ConfigError, match="devices must be a list"):
+        load_config(config_path)
+
+
+def test_invalid_device_entry_raises_clear_config_error(tmp_path):
+    config_path = tmp_path / "config.json"
+    config_path.write_text(json.dumps({"devices": [{"name": "desk"}]}), encoding="utf-8")
+
+    with pytest.raises(ConfigError, match=r"devices\[0\] must include ip"):
+        load_config(config_path)
+
+
+def test_invalid_device_ip_raises_clear_config_error(tmp_path):
+    config_path = tmp_path / "config.json"
+    config_path.write_text(
+        json.dumps({"devices": [{"name": "desk", "ip": "not an ip"}]}), encoding="utf-8"
+    )
+
+    with pytest.raises(ConfigError, match=r"devices\[0\].ip must be a valid IP address"):
+        load_config(config_path)

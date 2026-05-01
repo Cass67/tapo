@@ -129,7 +129,7 @@ def test_cli_reports_partial_success_summary(monkeypatch, tmp_path, capsys):
 
 def test_cli_discover_prints_found_devices(monkeypatch, capsys):
     monkeypatch.setattr(
-        cli, "discover_devices", lambda _timeout=5: [{"ip": "192.168.2.73", "model": "P110"}]
+        cli, "discover_devices", lambda timeout=5: [{"ip": "192.168.2.73", "model": "P110"}]
     )
 
     result = cli.main(["--discover"])
@@ -138,6 +138,21 @@ def test_cli_discover_prints_found_devices(monkeypatch, capsys):
     assert result == 0  # nosec B101
     assert "192.168.2.73" in captured.out  # nosec B101
     assert "P110" in captured.out  # nosec B101
+
+
+def test_cli_discover_passes_timeout(monkeypatch, capsys):
+    called = {}
+
+    def fake_discover(timeout=5):
+        called["timeout"] = timeout
+        return [{"ip": "192.168.2.73", "model": "P110"}]
+
+    monkeypatch.setattr(cli, "discover_devices", fake_discover)
+
+    result = cli.main(["--discover", "--timeout", "2"])
+
+    assert result == 0  # nosec B101
+    assert called["timeout"] == 2  # nosec B101
 
 
 def test_cli_serve_starts_exporter(monkeypatch, tmp_path):

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import threading
 import time
+import signal
 from collections.abc import Callable
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
@@ -71,7 +72,23 @@ def serve_metrics(config: ProbeConfig, port: int = 9108, interval: int = 60) -> 
         def log_message(self, _format: str, *_args: object) -> None:
             return
 
-    ThreadingHTTPServer(("127.0.0.1", port), Handler).serve_forever()
+    server = ThreadingHTTPServer(("127.0.0.1", port), Handler)
+    _install_shutdown_handlers(server)
+    try:
+        server.serve_forever()
+    finally:
+        server.server_close()
+
+
+def _install_shutdown_handlers(server: ThreadingHTTPServer) -> None:
+    def shutdown(_signum: int, _frame: object) -> None:
+        threading.Thread(target=server.shutdown, daemon=True).start()
+
+    try:
+        signal.signal(signal.SIGINT, shutdown)
+        signal.signal(signal.SIGTERM, shutdown)
+    except ValueError:
+        return
 
 
 def _hostname_overrides(config: ProbeConfig) -> dict[str, str]:

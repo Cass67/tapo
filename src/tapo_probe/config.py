@@ -3,7 +3,9 @@ from __future__ import annotations
 import json
 import os
 from dataclasses import dataclass
+from ipaddress import ip_address
 from pathlib import Path
+from typing import Any
 
 
 @dataclass(frozen=True)
@@ -43,14 +45,7 @@ def load_config(
             ) from exc
         if not isinstance(data, dict):
             raise ConfigError(f"{path} must contain a JSON object")
-        for item in data.get("devices", []):
-            devices.append(
-                DeviceConfig(
-                    name=str(item["name"]),
-                    ip=str(item["ip"]),
-                    hostname=str(item["hostname"]) if item.get("hostname") else None,
-                )
-            )
+        devices = _load_devices(data.get("devices", []))
 
     missing = []
     if not username:
@@ -81,6 +76,38 @@ def _load_dotenv(env_path: str | Path) -> dict[str, str]:
         key, value = stripped.split("=", 1)
         values[key.strip()] = _clean_env_value(value.strip())
     return values
+
+
+def _load_devices(value: Any) -> list[DeviceConfig]:
+    if not isinstance(value, list):
+        raise ConfigError("devices must be a list")
+
+    devices = []
+    for index, item in enumerate(value):
+        if not isinstance(item, dict):
+            raise ConfigError(f"devices[{index}] must be an object")
+        name = _required_text(item, "name", index)
+        ip = _required_text(item, "ip", index)
+        try:
+            ip_address(ip)
+        except ValueError as exc:
+            raise ConfigError(f"devices[{index}].ip must be a valid IP address") from exc
+        hostname = item.get("hostname")
+        devices.append(
+            DeviceConfig(
+                name=name,
+                ip=ip,
+                hostname=str(hostname).strip() if hostname else None,
+            )
+        )
+    return devices
+
+
+def _required_text(item: dict[str, Any], key: str, index: int) -> str:
+    value = item.get(key)
+    if value is None or not str(value).strip():
+        raise ConfigError(f"devices[{index}] must include {key}")
+    return str(value).strip()
 
 
 def _clean_env_value(value: str) -> str:

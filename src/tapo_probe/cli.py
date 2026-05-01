@@ -38,10 +38,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--discover", action="store_true", help="Scan the LAN for Tapo devices and print their IPs"
     )
+    parser.add_argument("--timeout", type=int, default=5, help="Discovery timeout in seconds")
     args = parser.parse_args(argv)
 
     if args.discover:
-        return _discover()
+        return _discover(args.timeout)
 
     try:
         config = load_config(args.config)
@@ -54,8 +55,8 @@ def main(argv: list[str] | None = None) -> int:
     return _probe(config, args.output)
 
 
-def _discover() -> int:
-    devices = discover_devices()
+def _discover(timeout: int = 5) -> int:
+    devices = discover_devices(timeout=timeout)
     if not devices:
         print(
             "No Tapo devices discovered. Check that the plug is powered on and on this LAN.",
