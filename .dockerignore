@@ -1,0 +1,14 @@
+.git
+.pytest_cache
+.ruff_cache
+.venv
+__pycache__
+*.pyc
+.env
+.env.*
+*env*
+tapo-config.json
+tapo-readings.jsonl
+data-alloy
+docs/plans
+grafana/*.config

@@ -42,3 +42,23 @@ def test_sample_dashboard_uses_exported_metrics():
     assert "tapo_energyUsage_todayEnergy" in text  # nosec B101
     assert "tapo_deviceInfo_rssi" in text  # nosec B101
     assert "tapo_plug_overheat" in text  # nosec B101
+
+
+def test_readme_documents_container_usage():
+    text = Path("README.md").read_text(encoding="utf-8")
+
+    assert "Containerfile" in text  # nosec B101
+    assert "docker build" in text  # nosec B101
+    assert "podman build" in text  # nosec B101
+    assert "/config/tapo-config.json" in text  # nosec B101
+    assert "TAPO_USERNAME" in text  # nosec B101
+    assert "-p 9108:9108" in text  # nosec B101
+
+
+def test_containerfile_runs_exporter_by_default():
+    text = Path("Containerfile").read_text(encoding="utf-8")
+
+    assert "python:3.12-slim" in text  # nosec B101
+    assert "EXPOSE 9108" in text  # nosec B101
+    assert "tapo-probe" in text  # nosec B101
+    assert "/config/tapo-config.json" in text  # nosec B101

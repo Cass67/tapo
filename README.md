@@ -165,6 +165,44 @@ Set a different listen port or poll interval during install:
 TAPO_PROBE_PORT=9110 TAPO_PROBE_INTERVAL=30 scripts/install-service.sh
 ```
 
+## Container
+
+Build an exporter-only image with Docker:
+
+```bash
+docker build -f Containerfile -t tapo-probe:local .
+```
+
+Or with Podman:
+
+```bash
+podman build -f Containerfile -t tapo-probe:local .
+```
+
+Run the exporter with a mounted config file and credentials from the environment:
+
+```bash
+docker run --rm \
+  -p 9108:9108 \
+  -e TAPO_USERNAME='you@example.com' \
+  -e TAPO_PASSWORD='your-password' \
+  -v "$PWD/tapo-config.json:/config/tapo-config.json:ro" \
+  tapo-probe:local
+```
+
+Podman uses the same arguments:
+
+```bash
+podman run --rm \
+  -p 9108:9108 \
+  -e TAPO_USERNAME='you@example.com' \
+  -e TAPO_PASSWORD='your-password' \
+  -v "$PWD/tapo-config.json:/config/tapo-config.json:ro" \
+  tapo-probe:local
+```
+
+The container runs `tapo-probe serve --config /config/tapo-config.json --port 9108 --interval 60` by default. Keep `.env` and local config files outside the image; `.dockerignore` excludes common secret and local runtime files from the build context.
+
 ## Grafana Cloud
 
 Install Grafana Alloy and copy `grafana/alloy.config.example` to your Alloy config path. Set these environment variables from your Grafana Cloud Prometheus remote_write details:
