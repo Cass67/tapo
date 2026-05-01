@@ -103,15 +103,17 @@ Run the installer from the repo root:
 scripts/install-service.sh
 ```
 
-The installer is user-level by default. It does not require sudo.
+The installer is user-level by default. It does not require sudo. On macOS, the installer manages both the exporter and Grafana Alloy so local collection and Grafana Cloud remote_write survive login/reboot.
 
 What it does:
 
 - Creates `.venv` if needed and installs this package.
 - Creates `~/.config/tapo-probe/tapo-config.json` with a sample device if it does not exist.
 - On macOS, installs `~/Library/LaunchAgents/com.tapo-probe.exporter.plist`.
+- On macOS, installs `~/Library/LaunchAgents/com.tapo-probe.alloy.plist` when `alloy` is available.
 - On Linux, installs `~/.config/systemd/user/tapo-probe.service`.
 - Starts the exporter with `tapo-probe serve --config ~/.config/tapo-probe/tapo-config.json --port 9108 --interval 60`.
+- Starts Alloy with a managed `~/.config/tapo-probe/alloy.config` copied from `grafana/alloy.config.example`.
 
 The service starts automatically after user login. On Linux user services, reboot autostart also depends on the user's systemd user manager; it starts after login by default. For headless boot before login, enable lingering manually with `loginctl enable-linger "$USER"`.
 
@@ -121,7 +123,13 @@ Before relying on the service, edit:
 ~/.config/tapo-probe/tapo-config.json
 ```
 
-Keep credentials in `.env` in this repo or set `TAPO_USERNAME` and `TAPO_PASSWORD` in the service environment using your OS service tooling. Do not put credentials in `tapo-config.json`.
+Keep Tapo and Grafana credentials in `.env` in this repo or set them in the service environment using your OS service tooling. The managed Alloy wrapper sources `.env` without printing values. Do not put credentials in `tapo-config.json`.
+
+Install Alloy before running the installer if you want Grafana Cloud remote_write managed automatically:
+
+```bash
+brew install grafana/grafana/alloy
+```
 
 Installer commands:
 
@@ -135,14 +143,17 @@ macOS service commands:
 
 ```bash
 launchctl print gui/$(id -u)/com.tapo-probe.exporter
+launchctl print gui/$(id -u)/com.tapo-probe.alloy
 launchctl kickstart -k gui/$(id -u)/com.tapo-probe.exporter
+launchctl kickstart -k gui/$(id -u)/com.tapo-probe.alloy
 launchctl bootout gui/$(id -u) ~/Library/LaunchAgents/com.tapo-probe.exporter.plist
+launchctl bootout gui/$(id -u) ~/Library/LaunchAgents/com.tapo-probe.alloy.plist
 ```
 
 macOS logs:
 
 ```bash
-tail -f ~/Library/Logs/tapo-probe.out.log ~/Library/Logs/tapo-probe.err.log
+tail -f ~/Library/Logs/tapo-probe.out.log ~/Library/Logs/tapo-probe.err.log ~/Library/Logs/tapo-probe-alloy.err.log
 ```
 
 Linux service commands:
@@ -221,6 +232,10 @@ export GRAFANA_METRICS_READ='your-grafana-cloud-metrics-read-token'
 ## Sample Dashboard
 
 Import `grafana/tapo-p110-dashboard.sample.json` into Grafana and choose your Prometheus data source. The dashboard uses the compatibility metric names emitted by the exporter, including `tapo_energyUsage_currentPower`, `tapo_energyUsage_todayEnergy`, and `tapo_deviceInfo_rssi`.
+
+Illustrative preview of the sample dashboard:
+
+![Tapo P110 Energy dashboard preview](docs/assets/tapo-p110-dashboard-preview.svg)
 
 Useful PromQL examples:
 

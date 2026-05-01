@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">Tapo P110 Energy dashboard preview</title>
+  <desc id="desc">Illustrative dark Grafana-style dashboard mockup with power, energy, runtime, Wi-Fi, device state, and safety panels.</desc>
+  <defs>
+    <linearGradient id="power" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#6ed0e0" />
+      <stop offset="1" stop-color="#73bf69" />
+    </linearGradient>
+    <linearGradient id="energy" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#f2cc0c" />
+      <stop offset="1" stop-color="#ff9830" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000" flood-opacity="0.32" />
+    </filter>
+    <style>
+      .bg { fill: #0b0f14; }
+      .chrome { fill: #111827; }
+      .panel { fill: #151b23; stroke: #2f3846; stroke-width: 1; filter: url(#shadow); }
+      .grid { stroke: #27313f; stroke-width: 1; opacity: 0.75; }
+      .axis { fill: #8b98a9; font: 13px Arial, sans-serif; }
+      .title { fill: #e5e7eb; font: 700 18px Arial, sans-serif; }
+      .subtle { fill: #9ca3af; font: 13px Arial, sans-serif; }
+      .value { fill: #f9fafb; font: 700 42px Arial, sans-serif; }
+      .small-value { fill: #f9fafb; font: 700 30px Arial, sans-serif; }
+      .ok { fill: #73bf69; }
+      .warn { fill: #f2cc0c; }
+      .muted { fill: #6b7280; }
+      .line-power { fill: none; stroke: url(#power); stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+      .line-energy { fill: none; stroke: url(#energy); stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+      .line-runtime { fill: none; stroke: #5794f2; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+      .line-rssi { fill: none; stroke: #b877d9; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+    </style>
+  </defs>
+
+  <rect class="bg" width="1200" height="720" rx="18" />
+  <rect class="chrome" x="24" y="24" width="1152" height="64" rx="12" />
+  <text x="48" y="64" class="title" font-size="24">Tapo P110 Energy</text>
+  <text x="1040" y="63" class="subtle">last 6 hours</text>
+
+  <g transform="translate(24 112)">
+    <rect class="panel" width="552" height="220" rx="12" />
+    <text x="24" y="38" class="title">Current Power</text>
+    <text x="24" y="88" class="value">12.5 W</text>
+    <text x="178" y="86" class="subtle">desk-plug</text>
+    <path class="grid" d="M24 128H528 M24 166H528 M24 204H528" />
+    <path class="line-power" d="M30 196 C84 182 108 116 160 126 S244 198 296 150 S384 118 430 156 S496 178 526 102" />
+    <text x="24" y="207" class="axis">0 W</text>
+    <text x="486" y="207" class="axis">now</text>
+  </g>
+
+  <g transform="translate(624 112)">
+    <rect class="panel" width="552" height="220" rx="12" />
+    <text x="24" y="38" class="title">Energy Used</text>
+    <text x="24" y="88" class="small-value">400 Wh today</text>
+    <text x="250" y="88" class="small-value warn">1.2 kWh month</text>
+    <path class="grid" d="M24 128H528 M24 166H528 M24 204H528" />
+    <path class="line-energy" d="M30 198 C92 194 130 188 184 176 S292 142 342 126 S450 98 526 62" />
+    <text x="24" y="207" class="axis">Wh</text>
+    <text x="486" y="207" class="axis">now</text>
+  </g>
+
+  <g transform="translate(24 360)">
+    <rect class="panel" width="352" height="172" rx="12" />
+    <text x="24" y="38" class="title">Runtime</text>
+    <text x="24" y="84" class="small-value">1h today</text>
+    <text x="24" y="116" class="subtle">monthly runtime: 60h</text>
+    <path class="grid" d="M24 132H328 M24 104H328" />
+    <path class="line-runtime" d="M26 144 C80 136 110 122 154 126 S226 108 252 92 S300 84 326 70" />
+  </g>
+
+  <g transform="translate(424 360)">
+    <rect class="panel" width="352" height="172" rx="12" />
+    <text x="24" y="38" class="title">Wi-Fi RSSI</text>
+    <text x="24" y="88" class="small-value">-55 dBm</text>
+    <text x="178" y="86" class="subtle ok">strong</text>
+    <path class="grid" d="M24 132H328 M24 104H328" />
+    <path class="line-rssi" d="M26 96 C74 88 108 108 148 100 S222 86 260 92 S302 110 326 82" />
+  </g>
+
+  <g transform="translate(824 360)">
+    <rect class="panel" width="352" height="172" rx="12" />
+    <text x="24" y="38" class="title">Device On</text>
+    <circle cx="86" cy="98" r="38" fill="#1f3b2c" stroke="#73bf69" stroke-width="3" />
+    <text x="64" y="108" class="small-value ok">ON</text>
+    <text x="148" y="92" class="subtle">desk-plug reachable</text>
+    <text x="148" y="116" class="subtle">tapo_plug_up = 1</text>
+  </g>
+
+  <g transform="translate(24 560)">
+    <rect class="panel" width="1152" height="128" rx="12" />
+    <text x="24" y="38" class="title">Safety Status</text>
+    <g transform="translate(24 62)">
+      <rect x="0" y="0" width="246" height="42" rx="21" fill="#1f3b2c" />
+      <circle cx="24" cy="21" r="8" class="ok" />
+      <text x="44" y="27" class="subtle">overheat normal</text>
+    </g>
+    <g transform="translate(300 62)">
+      <rect x="0" y="0" width="270" height="42" rx="21" fill="#1f3b2c" />
+      <circle cx="24" cy="21" r="8" class="ok" />
+      <text x="44" y="27" class="subtle">overcurrent normal</text>
+    </g>
+    <g transform="translate(606 62)">
+      <rect x="0" y="0" width="330" height="42" rx="21" fill="#1f3b2c" />
+      <circle cx="24" cy="21" r="8" class="ok" />
+      <text x="44" y="27" class="subtle">power protection normal</text>
+    </g>
+    <text x="986" y="90" class="subtle">illustrative mockup</text>
+  </g>
+</svg>

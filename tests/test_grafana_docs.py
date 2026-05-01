@@ -62,3 +62,28 @@ def test_containerfile_runs_exporter_by_default():
     assert "EXPOSE 9108" in text  # nosec B101
     assert "tapo-probe" in text  # nosec B101
     assert "/config/tapo-config.json" in text  # nosec B101
+
+
+def test_readme_embeds_dashboard_preview_svg():
+    readme = Path("README.md").read_text(encoding="utf-8")
+    svg = Path("docs/assets/tapo-p110-dashboard-preview.svg").read_text(encoding="utf-8")
+
+    assert "docs/assets/tapo-p110-dashboard-preview.svg" in readme  # nosec B101
+    assert "Current Power" in svg  # nosec B101
+    assert "Energy Used" in svg  # nosec B101
+    assert "Runtime" in svg  # nosec B101
+    assert "Wi-Fi RSSI" in svg  # nosec B101
+    assert "Device On" in svg  # nosec B101
+    assert "Safety Status" in svg  # nosec B101
+
+
+def test_installer_manages_alloy_remote_write_service():
+    readme = Path("README.md").read_text(encoding="utf-8")
+    installer = Path("scripts/install-service.sh").read_text(encoding="utf-8")
+
+    assert "com.tapo-probe.alloy" in installer  # nosec B101
+    assert "alloy-run.sh" in installer  # nosec B101
+    assert "alloy.config" in installer  # nosec B101
+    assert "alloy run" in installer  # nosec B101
+    assert "brew install grafana/grafana/alloy" in installer  # nosec B101
+    assert "installer manages both the exporter and Grafana Alloy" in readme  # nosec B101
