@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tapo-probe"
+version = "0.1.0"
+description = "Local probe for TP-Link Tapo P110 energy readings"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "tapo>=0.9.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+]
+
+[project.scripts]
+tapo-probe = "tapo_probe.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
