@@ -221,6 +221,44 @@ podman run --rm \
 
 The container runs `tapo-probe serve --config /config/tapo-config.json --port 9108 --interval 60` by default. Keep `.env` and local config files outside the image; `.dockerignore` excludes common secret and local runtime files from the build context.
 
+## Local Grafana
+
+For long local retention, run Grafana and Prometheus on the same host as the exporter with Docker Compose:
+
+```bash
+GRAFANA_ADMIN_PASSWORD='change-this-password' docker compose up -d
+```
+
+Open Grafana at `http://cb1.lan:3000` and sign in with user `admin` and the password from `GRAFANA_ADMIN_PASSWORD`. Prometheus is published only on localhost at `http://127.0.0.1:9090`.
+
+The stack provisions Prometheus as the default Grafana data source and loads the sample Tapo dashboard from `grafana/tapo-p110-dashboard.sample.json`. Prometheus scrapes the host exporter through `host.docker.internal:9108`, so keep `tapo-probe.service` running on the host.
+
+The default Prometheus retention is two years:
+
+```yaml
+--storage.tsdb.retention.time=2y
+```
+
+Useful checks:
+
+```bash
+docker compose ps
+curl -fsS http://127.0.0.1:9090/-/ready
+curl -fsS http://127.0.0.1:9108/metrics | grep '^tapo_' | head
+```
+
+To stop the local Grafana stack without deleting data:
+
+```bash
+docker compose down
+```
+
+To delete local Grafana and Prometheus data as well:
+
+```bash
+docker compose down -v
+```
+
 ## Grafana Cloud
 
 Install Grafana Alloy and copy `grafana/alloy.config.example` to your Alloy config path. Set these environment variables from your Grafana Cloud Prometheus remote_write details:

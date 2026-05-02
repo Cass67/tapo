@@ -105,3 +105,16 @@ def test_installer_bootstraps_pip_in_virtualenv():
     assert "ensure_venv_pip" in installer  # nosec B101
     assert "-m ensurepip --upgrade" in installer  # nosec B101
     assert "python3-venv" in installer  # nosec B101
+
+
+def test_local_compose_stack_documents_long_retention():
+    readme = Path("README.md").read_text(encoding="utf-8")
+    compose = Path("compose.yaml").read_text(encoding="utf-8")
+    prometheus = Path("grafana/prometheus.local.yml").read_text(encoding="utf-8")
+    datasource = Path("grafana/provisioning/datasources/prometheus.yml").read_text(encoding="utf-8")
+
+    assert "docker compose up -d" in readme  # nosec B101
+    assert "http://cb1.lan:3000" in readme  # nosec B101
+    assert "--storage.tsdb.retention.time=2y" in compose  # nosec B101
+    assert "host.docker.internal:9108" in prometheus  # nosec B101
+    assert "http://prometheus:9090" in datasource  # nosec B101
