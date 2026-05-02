@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
-  <title id="title">Tapo P110 Energy dashboard preview</title>
-  <desc id="desc">Illustrative dark Grafana-style dashboard mockup with power, energy, runtime, Wi-Fi, device state, and safety panels.</desc>
+  <title id="title">Tapo smart plug monitoring dashboard preview</title>
+  <desc id="desc">Illustrative dark Grafana-style dashboard mockup with power, energy, runtime, Wi-Fi, estimated cost, firmware, and safety panels.</desc>
   <defs>
     <linearGradient id="power" x1="0" y1="0" x2="1" y2="0">
       <stop offset="0" stop-color="#6ed0e0" />
@@ -35,12 +35,12 @@
 
   <rect class="bg" width="1200" height="720" rx="18" />
   <rect class="chrome" x="24" y="24" width="1152" height="64" rx="12" />
-  <text x="48" y="64" class="title" font-size="24">Tapo P110 Energy</text>
-  <text x="1040" y="63" class="subtle">last 6 hours</text>
+  <text x="48" y="64" class="title" font-size="24">Tapo smart plug monitoring</text>
+  <text x="1040" y="63" class="subtle">last 1 hour</text>
 
   <g transform="translate(24 112)">
     <rect class="panel" width="552" height="220" rx="12" />
-    <text x="24" y="38" class="title">Current Power</text>
+    <text x="24" y="38" class="title">Power Consumption</text>
     <text x="24" y="88" class="value">12.5 W</text>
     <text x="178" y="86" class="subtle">desk-plug</text>
     <path class="grid" d="M24 128H528 M24 166H528 M24 204H528" />
@@ -51,7 +51,7 @@
 
   <g transform="translate(624 112)">
     <rect class="panel" width="552" height="220" rx="12" />
-    <text x="24" y="38" class="title">Energy Used</text>
+    <text x="24" y="38" class="title">Energy Usage</text>
     <text x="24" y="88" class="small-value">400 Wh today</text>
     <text x="250" y="88" class="small-value warn">1.2 kWh month</text>
     <path class="grid" d="M24 128H528 M24 166H528 M24 204H528" />
@@ -62,7 +62,7 @@
 
   <g transform="translate(24 360)">
     <rect class="panel" width="352" height="172" rx="12" />
-    <text x="24" y="38" class="title">Runtime</text>
+    <text x="24" y="38" class="title">Today Runtime</text>
     <text x="24" y="84" class="small-value">1h today</text>
     <text x="24" y="116" class="subtle">monthly runtime: 60h</text>
     <path class="grid" d="M24 132H328 M24 104H328" />
@@ -71,16 +71,16 @@
 
   <g transform="translate(424 360)">
     <rect class="panel" width="352" height="172" rx="12" />
-    <text x="24" y="38" class="title">Wi-Fi RSSI</text>
-    <text x="24" y="88" class="small-value">-55 dBm</text>
-    <text x="178" y="86" class="subtle ok">strong</text>
+    <text x="24" y="38" class="title">Estimated Cost</text>
+    <text x="24" y="88" class="small-value">0.08 today</text>
+    <text x="178" y="86" class="subtle ok">0.25 month</text>
     <path class="grid" d="M24 132H328 M24 104H328" />
     <path class="line-rssi" d="M26 96 C74 88 108 108 148 100 S222 86 260 92 S302 110 326 82" />
   </g>
 
   <g transform="translate(824 360)">
     <rect class="panel" width="352" height="172" rx="12" />
-    <text x="24" y="38" class="title">Device On</text>
+    <text x="24" y="38" class="title">Device State (on/off)</text>
     <circle cx="86" cy="98" r="38" fill="#1f3b2c" stroke="#73bf69" stroke-width="3" />
     <text x="64" y="108" class="small-value ok">ON</text>
     <text x="148" y="92" class="subtle">desk-plug reachable</text>
@@ -89,7 +89,7 @@
 
   <g transform="translate(24 560)">
     <rect class="panel" width="1152" height="128" rx="12" />
-    <text x="24" y="38" class="title">Safety Status</text>
+    <text x="24" y="38" class="title">Plug Firmware</text>
     <g transform="translate(24 62)">
       <rect x="0" y="0" width="246" height="42" rx="21" fill="#1f3b2c" />
       <circle cx="24" cy="21" r="8" class="ok" />
@@ -105,6 +105,6 @@
       <circle cx="24" cy="21" r="8" class="ok" />
       <text x="44" y="27" class="subtle">power protection normal</text>
     </g>
-    <text x="986" y="90" class="subtle">illustrative mockup</text>
+    <text x="986" y="90" class="subtle">safety status below</text>
   </g>
 </svg>

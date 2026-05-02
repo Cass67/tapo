@@ -231,7 +231,7 @@ GRAFANA_ADMIN_PASSWORD='change-this-password' docker compose up -d
 
 Open Grafana at `http://cb1.lan:3000` and sign in with user `admin` and the password from `GRAFANA_ADMIN_PASSWORD`. Prometheus is published only on localhost at `http://127.0.0.1:9090`.
 
-The stack provisions Prometheus as the default Grafana data source and loads the sample Tapo dashboard from `grafana/tapo-p110-dashboard.sample.json`. Prometheus scrapes the host exporter through `host.docker.internal:9108`, so keep `tapo-probe.service` running on the host.
+The stack provisions Prometheus as the default Grafana data source and loads the sample Tapo dashboard from `grafana/tapo-p110-dashboard.sample.json`. The Compose services use host networking so Prometheus can scrape the host exporter at `127.0.0.1:9108`; keep `tapo-probe.service` running on the host.
 
 The default Prometheus retention is two years:
 

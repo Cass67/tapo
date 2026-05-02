@@ -37,11 +37,14 @@ def test_sample_dashboard_uses_exported_metrics():
     )
     text = json.dumps(dashboard)
 
-    assert dashboard["title"] == "Tapo P110 Energy"  # nosec B101
+    assert dashboard["title"] == "Tapo smart plug monitoring"  # nosec B101
+    assert len(dashboard["panels"]) >= 12  # nosec B101
     assert "tapo_energyUsage_currentPower" in text  # nosec B101
     assert "tapo_energyUsage_todayEnergy" in text  # nosec B101
     assert "tapo_deviceInfo_rssi" in text  # nosec B101
     assert "tapo_plug_overheat" in text  # nosec B101
+    assert "Estimated Cost" in text  # nosec B101
+    assert "Plug Firmware" in text  # nosec B101
 
 
 def test_readme_documents_container_usage():
@@ -69,12 +72,11 @@ def test_readme_embeds_dashboard_preview_svg():
     svg = Path("docs/assets/tapo-p110-dashboard-preview.svg").read_text(encoding="utf-8")
 
     assert "docs/assets/tapo-p110-dashboard-preview.svg" in readme  # nosec B101
-    assert "Current Power" in svg  # nosec B101
-    assert "Energy Used" in svg  # nosec B101
-    assert "Runtime" in svg  # nosec B101
-    assert "Wi-Fi RSSI" in svg  # nosec B101
-    assert "Device On" in svg  # nosec B101
-    assert "Safety Status" in svg  # nosec B101
+    assert "Tapo smart plug monitoring" in svg  # nosec B101
+    assert "Power Consumption" in svg  # nosec B101
+    assert "Energy Usage" in svg  # nosec B101
+    assert "Estimated Cost" in svg  # nosec B101
+    assert "Plug Firmware" in svg  # nosec B101
 
 
 def test_installer_manages_alloy_remote_write_service():
@@ -116,5 +118,17 @@ def test_local_compose_stack_documents_long_retention():
     assert "docker compose up -d" in readme  # nosec B101
     assert "http://cb1.lan:3000" in readme  # nosec B101
     assert "--storage.tsdb.retention.time=2y" in compose  # nosec B101
-    assert "host.docker.internal:9108" in prometheus  # nosec B101
-    assert "http://prometheus:9090" in datasource  # nosec B101
+    assert "--web.listen-address=127.0.0.1:9090" in compose  # nosec B101
+    assert "network_mode: host" in compose  # nosec B101
+    assert "127.0.0.1:9108" in prometheus  # nosec B101
+    assert "http://127.0.0.1:9090" in datasource  # nosec B101
+
+
+def test_local_dashboard_uses_provisioned_datasource_uid():
+    dashboard = Path("grafana/tapo-p110-dashboard.sample.json").read_text(encoding="utf-8")
+    datasource = Path("grafana/provisioning/datasources/prometheus.yml").read_text(encoding="utf-8")
+
+    assert "deleteDatasources:" in datasource  # nosec B101
+    assert "uid: prometheus" in datasource  # nosec B101
+    assert '"uid": "prometheus"' in dashboard  # nosec B101
+    assert "${DS_PROMETHEUS}" not in dashboard  # nosec B101
