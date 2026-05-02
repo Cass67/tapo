@@ -38,8 +38,22 @@ install_package() {
   if [[ ! -x "$venv_dir/bin/python" ]]; then
     python3 -m venv "$venv_dir"
   fi
+  ensure_venv_pip
   "$venv_dir/bin/python" -m pip install --upgrade pip
   "$venv_dir/bin/python" -m pip install -e "$repo_root"
+}
+
+ensure_venv_pip() {
+  if "$venv_dir/bin/python" -m pip --version >/dev/null 2>&1; then
+    return 0
+  fi
+  if "$venv_dir/bin/python" -m ensurepip --upgrade; then
+    return 0
+  fi
+  printf 'The Python virtualenv was created without pip and ensurepip is unavailable.\n' >&2
+  printf 'Install your distro venv package, remove %s, then rerun this installer.\n' "$venv_dir" >&2
+  printf 'Debian/Ubuntu example: sudo apt install python3-venv python3-pip\n' >&2
+  return 1
 }
 
 install_alloy_runner() {

@@ -97,3 +97,11 @@ def test_linux_installer_manages_alloy_user_service():
     assert 'systemctl --user enable --now "tapo-probe-alloy.service"' in installer  # nosec B101
     assert "systemctl --user status tapo-probe-alloy.service" in readme  # nosec B101
     assert "journalctl --user -u tapo-probe-alloy.service -f" in readme  # nosec B101
+
+
+def test_installer_bootstraps_pip_in_virtualenv():
+    installer = Path("scripts/install-service.sh").read_text(encoding="utf-8")
+
+    assert "ensure_venv_pip" in installer  # nosec B101
+    assert "-m ensurepip --upgrade" in installer  # nosec B101
+    assert "python3-venv" in installer  # nosec B101
