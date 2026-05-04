@@ -4,6 +4,7 @@ import argparse
 import sys
 from pathlib import Path
 
+from tapo_probe import __version__
 from tapo_probe.config import ConfigError, load_config
 from tapo_probe.exporter import serve_metrics
 from tapo_probe.output import append_jsonl
@@ -31,6 +32,7 @@ def main(argv: list[str] | None = None) -> int:
         return _serve(argv[1:])
 
     parser = argparse.ArgumentParser(description="Probe Tapo P110 smart plug energy readings")
+    parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     parser.add_argument("--config", type=Path, help="Path to JSON config file")
     parser.add_argument(
         "--output", type=Path, default=Path("tapo-readings.jsonl"), help="JSONL output path"

@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 
 from tapo_probe import cli
+from tapo_probe import __version__
 from tapo_probe.readings import normalize_reading
 
 
@@ -17,6 +18,16 @@ def test_cli_prints_discovery_guidance_when_no_devices(monkeypatch, tmp_path, ca
     assert result == 2  # nosec B101
     assert "No Tapo devices are configured" in captured.err  # nosec B101
     assert "Router DHCP leases" in captured.err  # nosec B101
+
+
+def test_cli_prints_version(capsys):
+    try:
+        cli.main(["--version"])
+    except SystemExit as exc:
+        assert exc.code == 0  # nosec B101
+
+    captured = capsys.readouterr()
+    assert __version__ in captured.out  # nosec B101
 
 
 def test_cli_reports_missing_credentials(monkeypatch, tmp_path, capsys):

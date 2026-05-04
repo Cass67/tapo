@@ -149,7 +149,7 @@ def _status_flag(reading: Reading, key: str) -> float:
     if value is None:
         return 0
     text = str(value).lower()
-    return 0 if "normal" in text else 1
+    return 0 if text == "normal" or text.endswith(".normal") else 1
 
 
 def _escape_label(value: str) -> str:

@@ -144,3 +144,16 @@ def test_formats_dashboard_compatibility_metrics():
         'tapo_deviceInfo_device_on{hostname="desk",ip="192.168.1.50",name="desk",nickname="desk",alias="desk"} 1'
         in text
     )
+
+
+def test_status_flag_does_not_treat_abnormal_as_normal():
+    reading = normalize_reading(
+        "desk", "192.168.1.50", {"current_power": 12.5, "overcurrent_status": "abnormal"}
+    )
+
+    text = format_metrics([reading], {})
+
+    assert (  # nosec B101
+        'tapo_plug_overcurrent{hostname="desk",ip="192.168.1.50",name="desk",nickname="desk",alias="desk"} 1'
+        in text
+    )

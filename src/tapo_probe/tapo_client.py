@@ -47,9 +47,6 @@ class TapoLibraryBackend:
         return _to_mapping(info) | _to_mapping(usage) | _to_mapping(power)
 
 
-PlugP100Backend = TapoLibraryBackend
-
-
 async def collect_readings_async(
     username: str,
     password: str,
