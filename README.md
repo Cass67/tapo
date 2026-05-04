@@ -115,8 +115,9 @@ What it does:
 - On Linux, installs `~/.config/systemd/user/tapo-probe-alloy.service` when `alloy` is available.
 - Starts the exporter with `tapo-probe serve --config ~/.config/tapo-probe/tapo-config.json --port 9108 --interval 60`.
 - Starts Alloy with a managed `~/.config/tapo-probe/alloy.config` copied from `grafana/alloy.config.example`.
+- On Linux, enables lingering with `loginctl enable-linger "$USER"` when available, so the user service survives logout and reboot.
 
-The service starts automatically after user login. On Linux user services, reboot autostart also depends on the user's systemd user manager; it starts after login by default. For headless boot before login, enable lingering manually with `loginctl enable-linger "$USER"`.
+The service starts automatically after user login. On Linux user services, the installer enables lingering when possible for headless boot before login. If your OS policy blocks this, run `sudo loginctl enable-linger $USER` once.
 
 Before relying on the service, edit:
 

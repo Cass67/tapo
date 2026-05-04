@@ -101,6 +101,17 @@ def test_linux_installer_manages_alloy_user_service():
     assert "journalctl --user -u tapo-probe-alloy.service -f" in readme  # nosec B101
 
 
+def test_linux_installer_enables_user_lingering():
+    readme = Path("README.md").read_text(encoding="utf-8")
+    installer = Path("scripts/install-service.sh").read_text(encoding="utf-8")
+
+    assert "enable_linux_linger" in installer  # nosec B101
+    assert "loginctl enable-linger" in installer  # nosec B101
+    assert "sudo loginctl enable-linger $USER" in installer  # nosec B101
+    assert "enables lingering" in readme  # nosec B101
+    assert "survives logout and reboot" in readme  # nosec B101
+
+
 def test_installer_bootstraps_pip_in_virtualenv():
     installer = Path("scripts/install-service.sh").read_text(encoding="utf-8")
 

@@ -169,6 +169,21 @@ XML
   printf 'Installed macOS Alloy LaunchAgent: %s\n' "$plist_file"
 }
 
+enable_linux_linger() {
+  if ! command -v loginctl >/dev/null 2>&1; then
+    printf 'loginctl is not available; enable lingering manually if this host must collect before login.\n' >&2
+    return 0
+  fi
+
+  if loginctl enable-linger "$USER"; then
+    printf 'Enabled Linux user lingering for %s so services survive logout and reboot.\n' "$USER"
+    return 0
+  fi
+
+  printf 'Could not enable Linux user lingering automatically.\n' >&2
+  printf 'Run: sudo loginctl enable-linger $USER\n' >&2
+}
+
 install_linux() {
   local systemd_user_dir="${XDG_CONFIG_HOME:-$HOME/.config}/systemd/user"
   local service_file="$systemd_user_dir/$SERVICE_NAME.service"
@@ -220,6 +235,7 @@ SYSTEMD
   if [[ -f "$alloy_service_file" ]]; then
     printf 'Installed Linux Alloy user service: %s\n' "$alloy_service_file"
   fi
+  enable_linux_linger
 }
 
 install_service() {
